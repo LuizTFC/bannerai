@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/.next
+apps/api/uploads
+uploads
+**/.test-uploads
+**/coverage
+**/*.log
+.git
+.env
+.env.*
+!.env.example
+docs
+postgres-data

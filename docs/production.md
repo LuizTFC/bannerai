@@ -56,14 +56,16 @@ lowest latency to OpenAI). Brazilian users talk to Vercel's edge and to one API 
    `STORAGE_PROVIDER=r2`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`.
    To migrate existing local files, copy `apps/api/uploads/users/**` into the bucket keeping the
    same keys (`rclone copy apps/api/uploads r2:bannerai` works).
-3. **API service** (Railway/Fly): root command `npm run build -w @bannerai/shared && npm run build -w apps/api`,
-   start `npm run start -w apps/api`. Env: everything from `.env.example`, `NODE_ENV=production`,
+3. **API service** (Railway): new service from the GitHub repo with config file `railway.api.json`
+   (builds `apps/api/Dockerfile`, runs `prisma migrate deploy` then the server, health check on
+   `/api/health`). Env: everything from `.env.example`, `NODE_ENV=production`,
    `RUN_WORKER=false`, `FRONTEND_URL=https://app.yourdomain.com`, `API_PUBLIC_URL=https://api.yourdomain.com`,
    `SESSION_SECRET` (48 random bytes). Health check: `GET /api/health`.
-4. **Worker service**: same image/repo, start `npm run start:worker`, `WORKER_CONCURRENCY=3`.
-   Scale replicas with demand.
-5. **Web** (Vercel): root directory `apps/web`, build `npm run build -w @bannerai/shared && next build`,
-   env `NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api`.
+4. **Worker service**: second service from the same repo with config file `railway.worker.json`
+   (same image, runs `node dist/worker.js`), same env plus `RUN_WORKER=true`, `WORKER_CONCURRENCY=3`,
+   at least 1 GB of memory. Scale replicas with demand.
+5. **Web** (Vercel): import the repo with root directory `apps/web` (`apps/web/vercel.json` sets the
+   build command), env `NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api`.
 6. **Google OAuth**: add `https://api.yourdomain.com/api/auth/google/callback` to the authorized
    redirect URIs and `https://app.yourdomain.com` to the JavaScript origins; publish the consent screen.
 7. **Stripe**: live keys in `STRIPE_SECRET_KEY`; add a webhook endpoint

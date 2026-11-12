@@ -1,0 +1,303 @@
+// Bannerai — PostgreSQL schema (Prisma 7)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "esm"
+  runtime = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AspectRatio {
+  RATIO_16_9 @map("16:9")
+  RATIO_9_16 @map("9:16")
+  RATIO_1_1  @map("1:1")
+  RATIO_4_3  @map("4:3")
+}
+
+enum AiProvider {
+  gemini
+  openai
+}
+
+enum BannerStatus {
+  draft
+  generating
+  ready
+  failed
+}
+
+enum GenerationStatus {
+  pending
+  running
+  succeeded
+  failed
+}
+
+enum GenerationKind {
+  initial
+  edit
+}
+
+enum BrandKitAssetType {
+  logo
+  reference
+}
+
+/// Credit ledger entry types. `amount` is positive for credits in, negative for credits out.
+enum CreditTransactionType {
+  trial
+  purchase
+  hold
+  release
+  refund
+  adjustment
+}
+
+/// `reference` = style inspiration; `element` = content that must appear in the banner (guest photos, logos, products)
+enum ReferenceKind {
+  reference
+  element
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  googleId  String   @unique @map("google_id")
+  email     String   @unique
+  name      String
+  avatarUrl String?  @map("avatar_url")
+  /// Per-user preferences (default provider/model, language...)
+  settings  Json     @default("{}") @db.JsonB
+  /// Materialized credit balance (always equals the sum of the user's ledger); updated under a row lock
+  creditBalance    Int       @default(0) @map("credit_balance")
+  trialGrantedAt   DateTime? @map("trial_granted_at")
+  stripeCustomerId String?   @unique @map("stripe_customer_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  lastLoginAt DateTime? @map("last_login_at")
+
+  banners         Banner[]
+  generations     BannerGeneration[]
+  referenceImages ReferenceImage[]
+  brandKits       BrandKit[]
+  creditTransactions CreditTransaction[]
+
+  @@map("users")
+}
+
+/// Server-side session storage (schema expected by connect-pg-simple).
+model Session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+}
+
+model Banner {
+  id               String       @id @default(uuid()) @db.Uuid
+  userId           String       @map("user_id") @db.Uuid
+  title            String
+  prompt           String
+  aspectRatio      AspectRatio  @map("aspect_ratio")
+  /// Advanced settings used for the initial generation
+  settings         Json         @default("{}") @db.JsonB
+  status           BannerStatus @default(draft)
+  provider         AiProvider
+  model            String
+  currentVersionId String?      @unique @map("current_version_id") @db.Uuid
+  /// Brand Kit applied to this banner (null = none)
+  brandKitId       String?      @map("brand_kit_id") @db.Uuid
+  /// Version the team approved as final (feeds the learning loop)
+  approvedVersionId String?     @map("approved_version_id") @db.Uuid
+  approvedAt        DateTime?   @map("approved_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandKit        BrandKit?          @relation(fields: [brandKitId], references: [id], onDelete: SetNull)
+  currentVersion  BannerVersion?     @relation("BannerCurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  versions        BannerVersion[]    @relation("BannerVersions")
+  generations     BannerGeneration[]
+  referenceImages ReferenceImage[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([brandKitId])
+  @@map("banners")
+}
+
+model BannerGeneration {
+  id              String           @id @default(uuid()) @db.Uuid
+  bannerId        String           @map("banner_id") @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  kind            GenerationKind
+  status          GenerationStatus @default(pending)
+  /// Original user prompt (initial) or the prompt context (edit)
+  prompt          String
+  /// Natural-language edit instruction (edit generations only)
+  instruction     String?
+  optimizedPrompt String?          @map("optimized_prompt")
+  aspectRatio     AspectRatio      @map("aspect_ratio")
+  settings        Json             @default("{}") @db.JsonB
+  provider        AiProvider
+  model           String
+  sourceVersionId String?          @map("source_version_id") @db.Uuid
+  errorMessage    String?          @map("error_message")
+  durationMs      Int?             @map("duration_ms")
+  /// Provider usage / cost metadata when available
+  usage           Json?            @db.JsonB
+  /// Provider-specific metadata (response ids, safety info, etc.)
+  providerMetadata Json?           @map("provider_metadata") @db.JsonB
+  attempt         Int              @default(1)
+  /// Credits reserved when the job was queued; released if the job fails
+  creditsHeld     Int              @default(0) @map("credits_held")
+  /// Credits actually charged (= creditsHeld once the job succeeds)
+  creditsCharged  Int              @default(0) @map("credits_charged")
+  startedAt       DateTime?        @map("started_at")
+  completedAt     DateTime?        @map("completed_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  banner        Banner          @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceVersion BannerVersion?  @relation("GenerationSource", fields: [sourceVersionId], references: [id], onDelete: SetNull)
+  resultVersion BannerVersion?  @relation("GenerationResult")
+  referenceImages ReferenceImage[]
+  creditTransactions CreditTransaction[]
+
+  @@index([bannerId, createdAt(sort: Desc)])
+  @@index([userId, status])
+  @@map("banner_generations")
+}
+
+model BannerVersion {
+  id              String   @id @default(uuid()) @db.Uuid
+  bannerId        String   @map("banner_id") @db.Uuid
+  generationId    String   @unique @map("generation_id") @db.Uuid
+  versionNumber   Int      @map("version_number")
+  parentVersionId String?  @map("parent_version_id") @db.Uuid
+  storageKey      String   @map("storage_key")
+  mimeType        String   @default("image/png") @map("mime_type")
+  width           Int
+  height          Int
+  sizeBytes       Int      @map("size_bytes")
+  label           String
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  banner        Banner             @relation("BannerVersions", fields: [bannerId], references: [id], onDelete: Cascade)
+  generation    BannerGeneration   @relation("GenerationResult", fields: [generationId], references: [id], onDelete: Cascade)
+  parentVersion BannerVersion?     @relation("VersionLineage", fields: [parentVersionId], references: [id], onDelete: SetNull)
+  children      BannerVersion[]    @relation("VersionLineage")
+  currentOf     Banner?            @relation("BannerCurrentVersion")
+  sourcedGenerations BannerGeneration[] @relation("GenerationSource")
+
+  @@unique([bannerId, versionNumber])
+  @@index([bannerId, createdAt(sort: Desc)])
+  @@map("banner_versions")
+}
+
+/// Image uploaded for a single banner (not part of the Brand Kit): a style reference or a content element.
+model ReferenceImage {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @map("user_id") @db.Uuid
+  bannerId     String?       @map("banner_id") @db.Uuid
+  generationId String?       @map("generation_id") @db.Uuid
+  kind         ReferenceKind @default(reference)
+  /// What the element is / caption to use (e.g. "Evangelista Jes", "Banda DROPS logo")
+  label        String?
+  storageKey   String        @map("storage_key")
+  /// Cached background-removed PNG of an element (computed on first use)
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  sizeBytes    Int      @map("size_bytes")
+  width        Int?
+  height       Int?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  banner     Banner?           @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  generation BannerGeneration? @relation(fields: [generationId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([bannerId])
+  @@map("reference_images")
+}
+
+/// A reusable visual identity. Users can keep several (e.g. one per ministry, brand or client).
+model BrandKit {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  name             String
+  isDefault        Boolean  @default(false) @map("is_default")
+  organizationName String?  @map("organization_name")
+  organizationType String?  @map("organization_type")
+  primaryColor   String?  @map("primary_color")
+  secondaryColor String?  @map("secondary_color")
+  accentColors   String[] @default([]) @map("accent_colors")
+  preferredFonts String[] @default([]) @map("preferred_fonts")
+  instructions   String?
+  /// Visual system extracted by the text model from the reference banners (see style-guide.service)
+  styleGuide           Json?     @map("style_guide") @db.JsonB
+  styleGuideSourceHash String?   @map("style_guide_source_hash")
+  styleGuideUpdatedAt  DateTime? @map("style_guide_updated_at")
+  /// Rules learned from banners the team approved after editing (feedback loop)
+  learnedPreferences   String[]  @default([]) @map("learned_preferences")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets  BrandKitAsset[]
+  banners Banner[]
+
+  @@index([userId, isDefault])
+  @@map("brand_kits")
+}
+
+model BrandKitAsset {
+  id           String            @id @default(uuid()) @db.Uuid
+  brandKitId   String            @map("brand_kit_id") @db.Uuid
+  type         BrandKitAssetType
+  storageKey   String            @map("storage_key")
+  originalName String            @map("original_name")
+  mimeType     String            @map("mime_type")
+  sizeBytes    Int               @map("size_bytes")
+  width        Int?
+  height       Int?
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  brandKit BrandKit @relation(fields: [brandKitId], references: [id], onDelete: Cascade)
+
+  @@index([brandKitId, type])
+  @@map("brand_kit_assets")
+}
+
+/// Append-only ledger of credit movements. The user's `creditBalance` mirrors its running sum.
+model CreditTransaction {
+  id              String                @id @default(uuid()) @db.Uuid
+  userId          String                @map("user_id") @db.Uuid
+  type            CreditTransactionType
+  /// Positive = credits added, negative = credits removed
+  amount          Int
+  balanceAfter    Int                   @map("balance_after")
+  generationId    String?               @map("generation_id") @db.Uuid
+  /// Stripe references (purchases): unique so a webhook delivered twice cannot credit twice
+  stripeSessionId String?               @unique @map("stripe_session_id")
+  stripeEventId   String?               @unique @map("stripe_event_id")
+  packId          String?               @map("pack_id")
+  currency        String?
+  /// Amount paid in the smallest currency unit (e.g. cents)
+  amountPaid      Int?                  @map("amount_paid")
+  description     String?
+  metadata        Json?                 @db.JsonB
+  createdAt       DateTime              @default(now()) @map("created_at")
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generation BannerGeneration? @relation(fields: [generationId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([generationId])
+  @@map("credit_transactions")
+}

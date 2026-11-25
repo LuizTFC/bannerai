@@ -1,6 +1,6 @@
 # Bannerai
 
-An AI banner studio for any organization — churches and ministries, schools, small businesses,
+An AI banner studio for any event or organization — tech conferences and meetups, schools, small businesses,
 NGOs, festivals. Describe an event or campaign in English, Portuguese or Spanish, pick a Brand Kit
 and an aspect ratio, add reference banners, generate a professional banner with Google Gemini or
 OpenAI, refine it by talking to the AI, and download the final PNG — no designer required.
@@ -34,7 +34,7 @@ Brand identity (name, mark, colors, voice) is documented in [`docs/brand.md`](do
 | AI generation | Deterministic prompt composition → optional prompt optimization by a text model → image model (Gemini Nano Banana or OpenAI GPT Image) → PNG normalization with sharp |
 | Conversational editing | Each instruction sends the current image to the provider's edit endpoint and creates a new version; previous versions are never modified |
 | Versions | Browse, compare side-by-side, restore, download, or continue editing from any version |
-| Brand Kits | Several reusable identities per account (organization, ministry, brand, client): logo, colors, fonts, reference banners and guidelines. The default kit is applied automatically; any kit can be chosen per banner. The logo can be placed by the AI or composited exactly by the studio at a chosen corner |
+| Brand Kits | Several reusable identities per account (organization, event, brand, client): logo, colors, fonts, reference banners and guidelines. The default kit is applied automatically; any kit can be chosen per banner. The logo can be placed by the AI or composited exactly by the studio at a chosen corner |
 | Feedback loop | Approving a version after revisions makes a text model turn the change requests (plus first vs final image) into reusable rules stored on the Brand Kit ("learned preferences"), injected into every future generation and editable on the Brand Kit page. The approved PNG is also added to the kit's references |
 | Brand visual system | When reference banners are added to a kit, a text model extracts the organization's design system (layout, typography, colors, recurring devices, imagery, logo usage, mood, don'ts). It is persisted on the kit, shown on the Brand Kit page, and injected as mandatory rules into every generation. Any reference can also be picked as the **template** for a banner, and the model is told to reproduce its structure |
 | My Banners | Responsive grid with thumbnails, status, aspect ratio, provider, version count, download and delete |
@@ -185,7 +185,7 @@ backend verifies the state, creates or updates the user, regenerates the session
 `FRONTEND_URL/create`. `GET /api/auth/me` returns the user and the CSRF token; `POST
 /api/auth/logout` destroys the session.
 
-Optionally set `ALLOWED_EMAIL_DOMAINS=yourchurch.org` to restrict sign-in to your domain.
+Optionally set `ALLOWED_EMAIL_DOMAINS=yourcompany.com` to restrict sign-in to your domain.
 
 ## AI provider configuration
 

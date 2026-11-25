@@ -25,7 +25,7 @@ Return ONLY a JSON object with this exact shape (strings in English, concrete an
   "logoUsage": "where and how the logo appears (position, size, color version, surrounding space)",
   "mood": "overall tone and energy",
   "proportions": "scale relationships measured against the canvas: title block height as % of canvas height and width as % of canvas width, subtitle size relative to the title, info-card height, margins and the breathing space between blocks (be numeric, e.g. 'title ≈ 18% of height, ≈ 75% of width')",
-  "textHierarchy": "the text levels from top to bottom with how each is styled, e.g. '1) small uppercase kicker line above the title (ministry/organizer), 2) title in 2 lines, 3) subtitle sentence, 4) 2–4 detail items, each in its own rounded card with an icon, 5) footer line'",
+  "textHierarchy": "the text levels from top to bottom with how each is styled, e.g. '1) small uppercase kicker line above the title (organizer), 2) title in 2 lines, 3) subtitle sentence, 4) 2–4 detail items, each in its own rounded card with an icon, 5) footer line'",
   "doNot": ["things that would break the system, max 5"]
 }
 Be concrete and quantitative. Describe the recurring pattern across banners, not one banner.`;

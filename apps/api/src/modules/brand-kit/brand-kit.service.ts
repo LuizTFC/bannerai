@@ -49,7 +49,7 @@ export function toBrandKitDto(kit: BrandKitWithAssets): BrandKitDto {
   };
 }
 
-/** Users can keep several Brand Kits (ministries, brands, clients); exactly one is the default. */
+/** Users can keep several Brand Kits (events, brands, clients); exactly one is the default. */
 export class BrandKitService {
   async list(userId: string): Promise<BrandKitWithAssets[]> {
     return prisma.brandKit.findMany({ where: { userId }, orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }], include: withAssets });

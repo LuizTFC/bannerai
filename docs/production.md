@@ -125,5 +125,5 @@ Fixed monthly costs at launch: Vercel Hobby (free) or Pro (US$ 20), Railway API 
 including fees and provider cost at the margins above.
 
 Suggested levers once there is traction: raise edit price to 3 credits (edits are where most of
-the spend happens), add a 300-credit pack for churches/agencies, and offer organization accounts
+the spend happens), add a 300-credit pack for event organizers/agencies, and offer organization accounts
 with shared credits.

@@ -122,7 +122,7 @@ export type CreateBrandKitInput = z.infer<typeof createBrandKitSchema>;
 export const updateBrandKitSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   organizationName: z.string().trim().max(120).optional().or(z.literal("").transform(() => undefined)),
-  /** Free text such as "church", "school", "restaurant", "NGO"... used to steer the AI. */
+  /** Free text such as "conference", "school", "restaurant", "NGO"... used to steer the AI. */
   organizationType: z.string().trim().max(80).optional().or(z.literal("").transform(() => undefined)),
   primaryColor: optionalHexColor,
   secondaryColor: optionalHexColor,

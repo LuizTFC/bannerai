@@ -226,7 +226,7 @@ model ReferenceImage {
   @@map("reference_images")
 }
 
-/// A reusable visual identity. Users can keep several (e.g. one per ministry, brand or client).
+/// A reusable visual identity. Users can keep several (e.g. one per event, brand or client).
 model BrandKit {
   id               String   @id @default(uuid()) @db.Uuid
   userId           String   @map("user_id") @db.Uuid

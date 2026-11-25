@@ -95,7 +95,7 @@ export const en = {
     mockups: [
       { kicker: "Tech conference", title: "DEV SUMMIT", details: "OCT 24 · 25 — SAN FRANCISCO" },
       { kicker: "Science fair", title: "CURIOUS MINDS", details: "MAY 10 — MAIN GYM" },
-      { kicker: "Coffee shop", title: "HAPPY HOUR LATTE", details: "MON–FRI · 3–5 PM" },
+      { kicker: "Kids birthday", title: "LAURA TURNS 5", details: "JUN 14 · 3 PM — PARENTS WELCOME" },
     ],
     demoTitle: "Refine it like you'd brief a designer",
     demoDesc: "Every request becomes a new version. Compare, restore, keep going.",
@@ -105,7 +105,7 @@ export const en = {
     finalDesc: "Start with {n} free credits. No card, no subscription, no designer waiting list.",
     scrollHint: "Scroll",
     forWhom: "Made for",
-    audiences: ["Tech events & meetups", "Conferences & festivals", "Schools & courses", "Local businesses", "NGOs & communities", "Creators"],
+    audiences: ["Tech events & meetups", "Conferences & festivals", "Kids parties & schools", "Local businesses", "NGOs & communities", "Creators"],
     footer: "© {year} Bannerai. AI-generated images may contain imperfections; you are responsible for what you publish.",
   },
   login: {
@@ -166,6 +166,8 @@ export const en = {
       "Create a modern and impactful banner for our tech conference called DEV SUMMIT. Two days of talks on AI, product and careers for developers. Bold typography, dramatic lighting, dark cinematic atmosphere. October 24–25, San Francisco.",
       "Banner for our school's Science Fair “Curious Minds” on Saturday, May 10, 9 AM – 4 PM at the main gym. Playful, colorful, clean layout with big friendly typography and simple science illustrations.",
       "Promo banner for a coffee shop: “Happy Hour Latte” — buy one, get one free, Mondays to Fridays 3–5 PM. Warm tones, cozy photo-style imagery, bold price callout.",
+      "Invitation for Laura's 5th birthday party, under-the-sea theme — Saturday, June 14, 3 PM, Happy Kids Venue. Pastel colors, illustrated fish and bubbles, a line saying “Parents, bring the kids!” and a spot to RSVP by WhatsApp.",
+      "Invitation banner for the Kindergarten Talent Show — Friday, November 28, 6 PM, in the school courtyard. Addressed to parents and families, playful look with stars, confetti and rounded lettering, reminder to arrive 15 minutes early.",
       "Banner for the “Build Night” hackathon — September 12–14, 36 hours non-stop, registrations open. Neon on dark background, futuristic grid, geometric typography.",
     ],
   },

@@ -97,7 +97,7 @@ export const es: Dictionary = {
     mockups: [
       { kicker: "Conferencia tech", title: "DEV SUMMIT", details: "24 · 25 OCT — CDMX" },
       { kicker: "Feria de ciencias", title: "MENTES CURIOSAS", details: "10 MAY — GIMNASIO" },
-      { kicker: "Cafetería", title: "HAPPY HOUR LATTE", details: "LUN–VIE · 15–17H" },
+      { kicker: "Cumpleaños infantil", title: "LAURA CUMPLE 5", details: "14 JUN · 15H — PADRES INVITADOS" },
     ],
     demoTitle: "Refínalo como si hablaras con un diseñador",
     demoDesc: "Cada pedido se convierte en una nueva versión. Compara, restaura, sigue.",
@@ -107,7 +107,7 @@ export const es: Dictionary = {
     finalDesc: "Empieza con {n} créditos gratis. Sin tarjeta, sin suscripción, sin fila de diseñador.",
     scrollHint: "Desliza",
     forWhom: "Hecho para",
-    audiences: ["Eventos tech y meetups", "Conferencias y festivales", "Escuelas y cursos", "Negocios locales", "ONGs y comunidades", "Creadores"],
+    audiences: ["Eventos tech y meetups", "Conferencias y festivales", "Fiestas infantiles y escuelas", "Negocios locales", "ONGs y comunidades", "Creadores"],
     footer: "© {year} Bannerai. Las imágenes generadas por IA pueden tener imperfecciones; eres responsable de lo que publicas.",
   },
   login: {
@@ -168,6 +168,8 @@ export const es: Dictionary = {
       "Crea un banner moderno e impactante para nuestra conferencia de tecnología llamada DEV SUMMIT. Dos días de charlas sobre IA, producto y carrera para desarrolladores. Tipografía fuerte, iluminación dramática, atmósfera oscura y cinematográfica. 24 y 25 de octubre, Ciudad de México.",
       "Banner para la Feria de Ciencias “Mentes Curiosas” de nuestra escuela, sábado 10 de mayo, de 9:00 a 16:00 en el gimnasio principal. Visual divertido, colorido y limpio, tipografía grande y amigable, ilustraciones simples de ciencia.",
       "Banner promocional para una cafetería: “Happy Hour del Latte” — compra uno y llévate dos, de lunes a viernes de 15:00 a 17:00. Tonos cálidos, imagen acogedora estilo foto, precio destacado.",
+      "Invitación para la fiesta de 5 años de Laura, tema fondo del mar — sábado 14 de junio, 15:00, Salón Alegría. Colores pastel, pececitos y burbujas ilustradas, frase “¡Papás y mamás, traigan a los niños!” y espacio para confirmar asistencia por WhatsApp.",
+      "Invitación para el Festival de Talentos de Educación Infantil — viernes 28 de noviembre, 18:00, en el patio de la escuela. Dirigida a padres y familias, visual lúdico con estrellas, confeti y letras redondeadas, recordatorio de llegar 15 minutos antes.",
       "Banner para el hackathon “Build Night” — 12 al 14 de septiembre, 36 horas sin parar, inscripciones abiertas. Neón sobre fondo oscuro, grid futurista, tipografía geométrica.",
     ],
   },
